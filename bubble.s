@@ -75,7 +75,50 @@ ra_done:
 #             $a0   $a1
 bubble_sort:
 	# your code here
+	sub	$sp, 20			# save used register
+    sw  $s3, 16($sp)
+	sw	$s2, 12($sp)
+	sw	$s1, 8($sp)
+	sw	$s0, 4($sp)
+	sw	$ra, 0($sp)
+
+    li  $s0, 0        # outer for loop iterations
+outer_loop:
+    move  $s1, $a1      # s1 has current address
+    li  $s2, 1        # inner for loop iterations in s2
+    li  $s3, 0        # value that holds if anything changes
+
+inner_loop:
+    jal cmp             #compare and /or swap
+    add $s3, $s3, $v0   # update variable that sees if things have changed
+    addi $s2, $s2, 1    #increment outer loop var
+    addi $s1, $s1, 4    #increment outer loop var
+
+    blt $s2, $a0, inner_loop    #go back to inner loop if not done
+    beq $s3, $zero, finish  #if nothing changed, finish
+    blt $s0, $a0, outer_loop #loop back if still more iterations to do
+finish:
+	lw	$ra, 0($sp)		# restore used registers
+	lw	$s0, 4($sp)
+	lw	$s1, 8($sp)
+	lw	$s2, 12($sp)
+    sw  $s3, 16($sp)
+	add	$sp, 20
 	jr	$ra			# return
+
+#swap value 
+swap:
+    sw  $t0, 4($s1)
+    sw  $t1, 0($s1)
+    li  $v0,  1         #put 1 in v0 if swap occured
+    jr  $ra
+#cmp value, swap if need to
+cmp:
+    lw  $t0, 0($s1)
+    lw  $t1, 4($s1)
+    blt $t1, $t0, swap
+    li  $v0, 0          #put 0 in v0 if no swap occured
+    jr  $ra
 
 # print_array(size, address)
 #             $a0   $a1

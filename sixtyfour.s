@@ -30,16 +30,16 @@ main:
 	move	$a1, $v1
 	jal	print64
 
-	#li	$a0, 0x0
-	#li	$a1, 0x1
-	#li	$a2, 0x1
-	#li	$a3, 0x0
+	li	$a0, 0x0
+	li	$a1, 0x1
+	li	$a2, 0x1
+	li	$a3, 0x0
 
-	#jal	sub64
+	jal	sub64
 
-	#move	$a0, $v0
-	#move	$a1, $v1
-	#jal	print64
+	move	$a0, $v0
+	move	$a1, $v1
+	jal	print64
 
 	lw	$ra, ($sp)
 	addi	$sp, $sp, 4
@@ -48,17 +48,22 @@ main:
 
 # v0/v1 = a0/a1 + a2/a3
 add64:
-	# your code here
-    addiu $v0, $a0, $a2 #add low order
-    sltu $t0, $a0, $v0  #set carry if roll over
-    addiu $v1, $a1, $a3 #add high order
-    addiu $v1, $v1, $t0 #add carry
+	# add numbers
+
+    addu $v0, $a0, $a2 # add low order
+    slt $t0, $a0, $v0  # set carry if roll over
+    addu $v1, $a1, $a3 # add high order
+    addu $v1, $v1, $t0 # add carry
 	jr	$ra
 
 # v0/v1 = a0/a1 - a2/a3
 sub64:
-    # create negative versions of a2, a3
-	# your code here
+	# add negation of second number
+
+    subu $v0, $a0, $a2 # subtract low order
+    sltu $t0, $a0, $a2 # carry bit
+    add  $a3, $a3, $t0 # add carry
+    sub  $v1, $a1, $a3 # subtract high order
 	jr	$ra
 
 # print the 64-bit number in a0/a1 in hexadecimal (base 16)
